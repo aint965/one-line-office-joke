@@ -71,3 +71,14 @@ than I have", which broadens the absurdity and earns the payoff.
 > My out-of-office reply has done more of my job than I have this year, and HR just nominated it for Employee of the Month.
 
 Final: **121 characters**, one sentence, one line.
+
+### Revision 3 — defect: string-only read-back could not prove the bytes on disk
+
+The read-back verification read the written file as a UTF-8 string and
+compared strings, so a stray byte-order mark or a decoding quirk could pass
+while the bytes on disk differed from the joke. `main.ts` now reads the
+file back as a raw Buffer (no encoding), checks its byte length equals
+`Buffer.byteLength(JOKE, "utf8")`, and compares bytes with
+`Buffer.equals(Buffer.from(JOKE, "utf8"))`, failing loudly on any mismatch.
+A guard also rejects any leading or trailing whitespace in the joke, so a
+stray space can never silently change the judged text.
